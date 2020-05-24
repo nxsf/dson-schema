@@ -1,0 +1,177 @@
+= DSON Object Schema Specification Standard
+:doctype: book
+:revnumber: 0
+:revremark: Draft
+:numbered:
+:idprefix:
+:idseparator: -
+
+:uri-dson: https://onyxlang.org/dson
+:uri-semver-2: https://semver.org/spec/v2.0.0.html
+:uri-semver: https://semver.org/
+
+The following standard defines how to describe complex {uri-dson}[DSON] object schema specifications in DSON.
+
+[preface]
+= Preface
+
+It is common to have a need to describe an DSON object structure schema: what properties can it have of which types.
+
+The DSON Object Schema Specification Standard standardizes a way to define such a schema using a DSON document.
+
+For example, the following DSON object:
+
+```dson
+{
+  name = "John",
+  age = 18,
+  hobbies = [{
+    id = standards,
+    about = "Loves to write different standards"
+  }]
+}
+```
+
+Matches the following schema:
+
+```dson
+{
+  types = [{
+    name = hobby,
+    fields = [{
+      name = id,
+      type = string,
+      required = true
+    }, {
+      name = about,
+      type = string,
+      required = false
+    }]
+  }],
+
+  fields = [{
+    name = name,
+    type = string,
+    required = true
+  }, {
+    name = age,
+    type = num,
+    required = false
+  }, {
+    name = hobbies,
+    type = array<hobby>,
+    required = false
+  }]
+}
+```
+
+The standard follows {uri-semver-2}[Semantic Versioning 2.0].
+
+[glossary]
+== Glossary
+
+[glossary]
+[[term-schema-object]]
+schema object:: The DSON object containing a schema definition.
+[[term-described-object]]
+described object:: A DSON object the schema is defined for.
+
+== Specification
+
+=== Types
+
+The standard defines a type system which allows to restrict a xref:term-described-object[described object]'s properties to certain types.
+
+==== Basic DSON types
+
+There is a number of built-in types natural to DSON:
+
+  * The [[type-string]] `string` type corresponds to a DSON string.
+
+  * The [[type-object]] `object` type corresponds to a DSON object.
+
+  * The [[type-array]] `array<T>` type corresponds to a DSON array, e.g. `array<xref:type-string[string]>` or `array<xref:type-object[object]>`.
+
+==== Additional scalar types
+
+Due to the lack of scalar types in DSON other than strings, the following types are defined:
+
+  * `num` represents a numeric value.
+  A value of this type must be an optionally signed integer or a floating-point number, e.g. `42` or `-17.5`.
+
+  * [[type-bool]] `bool` represents a boolean value.
+  A value of this type must be a string with either `true` or `false` value.
+
+==== Special types
+
+Special types are defined:
+
+  * The `variant<T>` type defines a list of possible types delimited by comma, e.g. `variant<xref:type-object[object], xref:type-string[string], my_type>`.
+
+  * The `enum<V>` type defines a list of possible exact scalar values, e.g. `enum<42, foo>`.
+
+  * The xref:type-field[`field`] type represents a DSON object property.
+
+  * The xref:type-type[`type`] type represents a user-defined type.
+
+[[type-field]]
+==== `field` type
+
+The `field` object type defines an object describing a DSON object property.
+
+An object of type `field` may contain the following properties itself:
+
+  * Required `name` property of type xref:type-string[`string`].
+
+  * Required `type` property of type xref:type-string[`string`] representing a type from the type system.
+
+  * Optional `desc` property of type xref:type-string[`string`].
+
+  * Optional `required` property of type xref:type-bool[`bool`] with a default value of `false`.
+
+  * Optional `default` property of the same type as the `type` property.
+
+[[type-type]]
+==== User-defined types
+
+A xref:schema-object[] may contain user-defined object type declarations of type `type` in its `types` property.
+
+User-defined types can be referenced by the value of the `name` property of a `type` object.
+
+Referencing an _undefined type_, i.e. the one which is not defined in the schema object's `types` property, is errornous.
+
+An object of type `type` may contain the following properties itself:
+
+  * A required `name` property of type xref:type-string[`string`].
+
+  * An optional `desc` property of type xref:type-string[`string`].
+
+  * A required `fields` property of type `xref:type-array[array]<xref:_field_type[field]>`.
+
+=== Schema object
+
+A DSON document representing a schema must consist of a single DSON object referenced as the _schema object_.
+
+The schema object may contain the following DSON properties:
+
+  * Optional `name` property of type xref:type-string[`string`].
+
+  * Optional `desc` property of type xref:type-string[`string`].
+
+  * Required `ver` property of type xref:type-string[`string`], representing current version of the schema.
+
++
+TIP: Schema definition authors are encouraged to use {uri-semver}[Semantic Versioning] for their schemas.
+
+  * Optional `types` property of type `xref:type-array[array]<xref:_user_defined_types[type]>`.
+
+  * Required `fields` property of type `xref:type-array[array]<xref:_field_type[field]>`.
+
+[appendix]
+= Standard defining itself
+
+The standard can be partially defined using itself:
+
+```dson
+include::spec.dson[]
+```

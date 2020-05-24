@@ -1,0 +1,78 @@
+{
+  name = "DSON Object Schema Specification Standard",
+  desc = "The standard defining itself",
+  ver = 0.0.0,
+
+  types = [{
+    name = type_def,
+    desc = "A user-defined type",
+    fields = [{
+      name = name,
+      type = string,
+      desc = "Name of the type"
+      required = true
+    }, {
+      name = desc,
+      type = string,
+      desc = "Description of the type",
+      required = false
+    }, {
+      name = fields,
+      type = array<field_def>,
+      desc = "Fields of the type",
+      required = true
+    }]
+  }, {
+    name = field_def,
+    desc = "An object field",
+    fields = [{
+      name = name,
+      type = string,
+      desc = "A field name",
+      required = true
+    }, {
+      name = type,
+      type = string,
+      desc = "A field type restriction",
+      required = true
+    }, {
+      name = desc,
+      type = string,
+      desc = "A field description",
+      required = false
+    }, {
+      name = required,
+      type = bool,
+      desc = "Whether is the field required",
+      default = false
+    }, {
+      name = default,
+      type = string,
+      desc = "A default value for the field of matching type",
+      required = false
+    }]
+  }],
+
+  fields = [{
+    name = name,
+    type = string,
+    desc = "The schema name"
+  }, {
+    name = desc,
+    type = string,
+    desc = "The schema description"
+  }, {
+    name = ver,
+    type = string,
+    desc = "The schema version"
+  }, {
+    name = types,
+    type = array<type_def>,
+    desc = "Types defined for the schema",
+  }, {
+    name = fields,
+    type = array<field_def>,
+    desc = "The top-level object fields",
+    required = true
+  }]
+}
